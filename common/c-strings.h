@@ -16,7 +16,7 @@
 #include <stddef.h> // ssize_t
 
 extern ssize_t  get_line(char *s, size_t n, FILE *fd);
-extern char    *get_delim_r(char *str, const char delim, char **saveptr);
+extern char    *get_tok_r(char *str, const char delim, char **saveptr);
 
 extern int      strmatch(const char *str, const char *target);
 extern char    *strtrim(char *str);

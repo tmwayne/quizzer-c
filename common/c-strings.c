@@ -35,9 +35,9 @@ ssize_t get_line(char *s, size_t n, FILE *fd) {
 
 }
 
-// get_delim_r is like strtok_r in string.h except that it
+// get_tok_r is like strtok_r in string.h except that it
 // doesn't include the newline character
-char *get_delim_r(char *str, const char delim, char **saveptr) {
+char *get_tok_r(char *str, const char delim, char **saveptr) {
 
   if (*saveptr == NULL) *saveptr = str;
 
