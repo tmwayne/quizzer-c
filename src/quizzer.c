@@ -34,39 +34,47 @@ void shuffle_quiz(struct pair **quiz, int n) {
 
 }
 
-int main(int argc, char** argv) {
+int load_quiz(struct pair **quiz, FILE *fd) {
 
-  struct pair *quiz_data[NLINES];
+  char line[LINE_MAX+1];
+  int n = 0;
+
+  for ( ; n<NLINES && get_line(line, LINE_MAX, fd)>0; n++ ) {
+    if (!(quiz[n] = calloc(1, sizeof(struct pair)))) return -1;
+    char *saveptr = NULL;
+    quiz[n]->a = strdup(get_tok_r(line, '|', &saveptr));
+    quiz[n]->b = strdup(get_tok_r(NULL, '|', &saveptr));
+  }
+
+  return n;
+
+}
+
+int main(int argc, char** argv) {
 
   if (argc != 2) {
     fprintf(stderr, "Usage: %s file\n", argv[0]);
     exit(EXIT_FAILURE);
   }
-
-  // Prepare data structures
-  FILE *fin = fopen(argv[1], "r");
-  char *line = calloc(LINE_MAX+1, sizeof(char));
-  // for (int i=0; i<NLINES; i++) lines[i] = calloc(LINE_MAX+1, sizeof(char));
   
   // Load quiz
-  int nlines = 0;
-  // for ( ; nlines<NLINES && get_line(quiz_data[nlines].line, LINE_MAX, fin)>0; nlines++) {
-    // quiz_data[nlines] = calloc(1, sizeof(struct pair));
-    // get_delim_t(
+  FILE *fin = fopen(argv[1], "r");
+  struct pair *quiz[NLINES];
 
-  for ( ; nlines<NLINES ; nlines++ ) {
-    if (get_line(line, LINE_MAX, fin) <= 0) break;
-    quiz_data[nlines] = calloc(1, sizeof(struct pair));
-    char *saveptr = NULL;
-    quiz_data[nlines]->a = strdup(get_delim_r(line, '|', &saveptr));
-    quiz_data[nlines]->b = strdup(get_delim_r(NULL, '|', &saveptr));
+  int nlines = load_quiz(quiz, fin);
+  if (nlines <= 0) {
+    fprintf(stderr, "Failed to allocate memory for quiz...\n");
+    exit(EXIT_FAILURE);
   }
 
   // Prepare quiz
-  shuffle_quiz(quiz_data, nlines);
+  shuffle_quiz(quiz+1, nlines-1); // ignore header
 
   // Give quiz
   for (int i=0; i<nlines; i++)
-    printf("1: %s, 2: %s\n", quiz_data[i]->a, quiz_data[i]->b);
+    printf("1: %s, 2: %s\n", quiz[i]->a, quiz[i]->b);
+
+  // Cleanup
+  for (int i=0; i<nlines; i++) free(quiz[i]);
 
 }
